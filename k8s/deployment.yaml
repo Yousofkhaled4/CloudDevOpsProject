@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: final-app-container
-          image: yousofkhaled/ivolve-python-app
+          image: yousofkhaled/eyego-node-app:latest
           ports:
             - containerPort: 5000
               
