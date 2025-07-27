@@ -1,3 +1,20 @@
+name: Build and Deploy Docker Image
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+env:
+  IMAGE_NAME: yousofkhaled/eyego-node-app
+  TAG: latest
+  K8S_MANIFEST_PATH: k8s
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
@@ -29,13 +46,11 @@
         run: |
           sed -i "s|image: .*$|image: $IMAGE_NAME:$TAG|" $K8S_MANIFEST_PATH/deployment.yaml
 
-      - name: Commit Updated Manifests and Push
-        env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+      - name: Commit Updated Manifests
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
           git add $K8S_MANIFEST_PATH/deployment.yaml
-          git commit -m "Update image tag to $TAG"
-          git push https://x-access-token:${GH_TOKEN}@github.com/Yousofkhaled4/CloudDevOpsProject.git HEAD:main
+          git commit -m "Update image tag to $TAG" || echo "No changes to commit"
+          git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }} HEAD:main
 
